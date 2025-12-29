@@ -1,0 +1,209 @@
+
+###
+# Backend API test file for VS Code REST Client
+# Base URL: http://localhost:5000
+# This file tests OTP-based registration, login (captures JWTs), role-based protected routes, forgot-password, and failure cases.
+#
+
+###########################################################################
+# 1) REGISTRATION — SEND OTP
+# Send an OTP to the email. You may include name/password/role here; the server will send an OTP to the email.
+###########################################################################
+
+### Send registration OTP (Customer)
+POST http://localhost:5000/api/auth/register/send-otp
+Content-Type: application/json
+
+{
+  "name": "Ravi charan",
+  "email": "charan.ganisetti@sasi.ac.in",
+  "password": "Pass@1234",
+  "role": "customer"
+}
+
+### Send registration OTP (Worker)
+POST http://localhost:5000/api/auth/register/send-otp
+Content-Type: application/json
+
+{
+  "name": "K sai Nithin",
+  "email": "nithin.karinki@sasi.ac.in",
+  "password": "Pass@1234",
+  "role": "worker"
+}
+
+### Send registration OTP (Handicapper)
+POST http://localhost:5000/api/auth/register/send-otp
+Content-Type: application/json
+
+{
+  "name": "Handicapper One",
+  "email": "nithin.karinki@sasi.ac.in",
+  "password": "Pass@1234",
+  "role": "handicapper"
+}
+
+
+###########################################################################
+# 2) REGISTRATION — VERIFY OTP
+# After you receive the OTP in email, paste it into the `otp` field and call verify to create the account.
+###########################################################################
+
+### Verify registration OTP and complete registration (Customer)
+POST http://localhost:5000/api/auth/register/verify-otp
+Content-Type: application/json
+
+{
+  "name": "Customer One",
+  "email": "customer@example.com",
+  "password": "Pass@1234",
+  "role": "customer",
+  "otp": "<PASTE_OTP_HERE>"
+}
+
+### Verify registration OTP and complete registration (Worker)
+POST http://localhost:5000/api/auth/register/verify-otp
+Content-Type: application/json
+
+{
+  "name": "Worker One",
+  "email": "worker@example.com",
+  "password": "Pass@1234",
+  "role": "worker",
+  "otp": "<PASTE_OTP_HERE>"
+}
+
+### Verify registration OTP and complete registration (Handicapper)
+POST http://localhost:5000/api/auth/register/verify-otp
+Content-Type: application/json
+
+{
+  "name": "Handicapper One",
+  "email": "nithin.karinki@sasi.ac.in",
+  "password": "Pass@1234",
+  "role": "handicapper",
+  "otp": "560002"
+}
+
+
+###########################################################################
+# 3) LOGIN (After Email Verification)
+# Login and capture JWT tokens for protected requests.
+###########################################################################
+
+### Login Customer and store token as `customerToken`
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "customer@example.com",
+  "password": "Pass@1234"
+}
+
+> {%
+  const body = JSON.parse(response.body || '{}');
+  if (body && body.token) { client.global.set('customerToken', body.token); }
+%}
+
+### Login Worker and store token as `workerToken`
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "worker@example.com",
+  "password": "Pass@1234"
+}
+
+> {%
+  const body = JSON.parse(response.body || '{}');
+  if (body && body.token) { client.global.set('workerToken', body.token); }
+%}
+
+### Login Handicapper and store token as `handicapperToken`
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "handicapper@example.com",
+  "password": "Pass@1234"
+}
+
+> {%
+  const body = JSON.parse(response.body || '{}');
+  if (body && body.token) { client.global.set('handicapperToken', body.token); }
+%}
+
+
+###########################################################################
+# 4) ROLE-BASED PROTECTED ROUTES
+# Use the stored JWTs in the Authorization header. Routes in the project are plural: /api/customers, /api/workers, /api/handicappers
+###########################################################################
+
+### Customer dashboard (authorized with customerToken)
+GET http://localhost:5000/api/customers/dashboard
+Authorization: Bearer {{customerToken}}
+
+### Worker dashboard (authorized with workerToken)
+GET http://localhost:5000/api/workers/dashboard
+Authorization: Bearer {{workerToken}}
+
+### Handicapper dashboard (authorized with handicapperToken)
+GET http://localhost:5000/api/handicappers/dashboard
+Authorization: Bearer {{handicapperToken}}
+
+
+###########################################################################
+# 5) FORGOT PASSWORD — SEND OTP
+# Send an OTP to the user's email for password reset. Response will not include the OTP.
+###########################################################################
+
+### Send forgot-password OTP
+POST http://localhost:5000/api/auth/forgot-password/send-otp
+Content-Type: application/json
+
+{
+  "email": "charan.ganisetti@sasi.ac.in"
+}
+
+
+###########################################################################
+# 6) FORGOT PASSWORD — VERIFY OTP & RESET PASSWORD
+# After receiving the OTP via email, call this to reset password.
+###########################################################################
+
+### Verify forgot-password OTP and reset password
+POST http://localhost:5000/api/auth/forgot-password/verify-otp
+Content-Type: application/json
+
+{
+  "email": "charan.ganisetti@sasi.ac.in",
+  "otp": "524735",
+  "newPassword": "NewPass@1234"
+}
+
+
+###########################################################################
+# 7) AUTHORIZATION FAILURE TESTS
+# Test RBAC enforcement and missing token behavior
+###########################################################################
+
+### Access worker route with customer token (should be forbidden)
+GET http://localhost:5000/api/workers/dashboard
+Authorization: Bearer {{customerToken}}
+
+### Access customer route with handicapper token (should be forbidden)
+GET http://localhost:5000/api/customers/dashboard
+Authorization: Bearer {{handicapperToken}}
+
+### Access protected route without token (should return 401)
+GET http://localhost:5000/api/customers/dashboard
+
+
+###########################################################################
+# Notes:
+# - Run the send-OTP requests first (they send OTP to the configured email).
+# - Paste the received OTP into the verify-OTP requests to complete registration or reset password.
+# - Login requests store tokens globally for subsequent protected requests.
+# - If you re-run send-OTP too quickly you may hit basic rate limits.
+###########################################################################
+
