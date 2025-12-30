@@ -3,6 +3,11 @@ const otpService = require('../services/otp.service');
 const { sendOtpEmail } = require('../utils/email');
 const { signToken } = require('../utils/jwt');
 
+
+const Customer = require('../models/Customer');
+const Worker = require('../models/Worker');
+const Handicapper = require('../models/Handicapper');
+
 const OTP_EXPIRY_MINUTES = parseInt(process.env.OTP_EXPIRY_MINUTES || '10', 10);
 
 /**
@@ -43,22 +48,66 @@ async function sendRegisterOtp(req, res) {
 // Verify registration OTP and create user
 async function verifyRegisterOtp(req, res) {
   try {
-    const { name, email, password, role, otp } = req.body;
-    if (!name || !email || !password || !otp) return res.status(400).json({ message: 'Missing required fields' });
+    const { username, fullName, email, password, role, otp } = req.body;
+
+    if (!username || !fullName || !email || !password || !role || !otp) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
     const existing = await userService.findByEmail(email);
     if (existing) return res.status(400).json({ message: 'Email already registered' });
 
     const verified = await otpService.verifyOtp(email, 'register', otp);
     if (!verified.success) return res.status(400).json({ message: verified.message });
 
-    // Create user and mark verified
-    const user = await userService.createUser({ name, email, password, role, isVerified: true });
+    // Create USER (auth-only)
+    const user = await userService.createUser({
+      username,
+      email,
+      password,
+      role,
+      isVerified: true
+    });
+
+    // Create ROLE-SPECIFIC document with fullName
+    if (role === 'customer') {
+      await Customer.create({
+        userId: user._id,
+        fullName
+      });
+    } else if (role === 'worker') {
+      await Worker.create({
+        userId: user._id,
+        fullName
+      });
+    } else if (role === 'handicapper') {
+      await Handicapper.create({
+        userId: user._id,
+        fullName
+      });
+    } else {
+      return res.status(400).json({ message: 'Invalid role' });
+    }
+
     const token = signToken({ id: user._id, role: user.role });
-    return res.status(201).json({ user: { id: user._id, name: user.name, email: user.email, role: user.role }, token });
+
+    return res.status(201).json({
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      },
+      token
+    });
   } catch (err) {
-    return res.status(500).json({ message: 'Registration failed', error: err.message });
+    return res.status(500).json({
+      message: 'Registration failed',
+      error: err.message
+    });
   }
 }
+
 
 /**
  * Login and return JWT.

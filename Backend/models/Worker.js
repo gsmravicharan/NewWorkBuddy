@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
-const User = require('./User');
 
-const WorkerSchema = new mongoose.Schema({
-  // Add worker-specific fields here
-  skills: { type: [String], default: [] },
+const workerSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  fullName: { type: String, required: true },
+  skills: [String],
+  location: String
 });
 
-module.exports = User.discriminator('Worker', WorkerSchema);
+module.exports = mongoose.model('Worker', workerSchema);

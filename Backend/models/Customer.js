@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
-const User = require('./User');
 
-const CustomerSchema = new mongoose.Schema({
-  // Add customer-specific fields here
-  preferences: { type: Object, default: {} },
+const customerSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  fullName: { type: String, required: true },
+  address: String
 });
 
-module.exports = User.discriminator('Customer', CustomerSchema);
+module.exports = mongoose.model('Customer', customerSchema);

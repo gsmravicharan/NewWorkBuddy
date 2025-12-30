@@ -15,8 +15,9 @@ POST http://localhost:5000/api/auth/register/send-otp
 Content-Type: application/json
 
 {
-  "name": "Ravi charan",
-  "email": "charan.ganisetti@sasi.ac.in",
+  "username": "Ravi charan",
+  "fullname":"Ganisetti Sai Muthya Ravi Charan",
+  "email": "gsmravicharan@gmail.com",
   "password": "Pass@1234",
   "role": "customer"
 }
@@ -54,11 +55,12 @@ POST http://localhost:5000/api/auth/register/verify-otp
 Content-Type: application/json
 
 {
-  "name": "Customer One",
-  "email": "customer@example.com",
+  "username": "Ravi charan",
+  "fullName": "Ganisetti Sai Muthya Ravi Charan",
+  "email": "gsmravicharan@gmail.com",
   "password": "Pass@1234",
   "role": "customer",
-  "otp": "<PASTE_OTP_HERE>"
+  "otp": "644929"
 }
 
 ### Verify registration OTP and complete registration (Worker)

@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
-const User = require('./User');
 
-const HandicapperSchema = new mongoose.Schema({
-  // Add handicapper-specific fields here
-  certifications: { type: [String], default: [] },
+const handicapperSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  fullName: { type: String, required: true },
+  assistanceType: String
 });
 
-module.exports = User.discriminator('Handicapper', HandicapperSchema);
+module.exports = mongoose.model('Handicapper', handicapperSchema);
