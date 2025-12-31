@@ -28,7 +28,7 @@ Content-Type: application/json
 
 {
   "name": "K sai Nithin",
-  "email": "nithin.karinki@sasi.ac.in",
+  "email": "charan.ganisetti@sasi.ac.in",
   "password": "Pass@1234",
   "role": "worker"
 }
@@ -60,7 +60,7 @@ Content-Type: application/json
   "email": "gsmravicharan@gmail.com",
   "password": "Pass@1234",
   "role": "customer",
-  "otp": "644929"
+  "otp": "153217"
 }
 
 ### Verify registration OTP and complete registration (Worker)
@@ -68,11 +68,12 @@ POST http://localhost:5000/api/auth/register/verify-otp
 Content-Type: application/json
 
 {
-  "name": "Worker One",
-  "email": "worker@example.com",
+  "username": "Ravi charan",
+  "fullName": "Ganisetti Sai Muthya Ravi Charan",
+  "email": "charan.ganisetti@sasi.ac.in",
   "password": "Pass@1234",
   "role": "worker",
-  "otp": "<PASTE_OTP_HERE>"
+  "otp": "970573"
 }
 
 ### Verify registration OTP and complete registration (Handicapper)

@@ -58,9 +58,11 @@ async function verifyRegisterOtp(req, res) {
     if (existing) return res.status(400).json({ message: 'Email already registered' });
 
     const verified = await otpService.verifyOtp(email, 'register', otp);
-    if (!verified.success) return res.status(400).json({ message: verified.message });
+    if (!verified.success) {
+      return res.status(400).json({ message: verified.message });
+    }
 
-    // Create USER (auth-only)
+    // 1️⃣ Create USER (auth-only)
     const user = await userService.createUser({
       username,
       email,
@@ -69,26 +71,33 @@ async function verifyRegisterOtp(req, res) {
       isVerified: true
     });
 
-    // Create ROLE-SPECIFIC document with fullName
+    // 2️⃣ Create ROLE-SPECIFIC document (with email)
     if (role === 'customer') {
       await Customer.create({
         userId: user._id,
+        username: user.username,
+        email: user.email,
         fullName
       });
     } else if (role === 'worker') {
       await Worker.create({
         userId: user._id,
+        username: user.username,
+        email: user.email,
         fullName
       });
     } else if (role === 'handicapper') {
       await Handicapper.create({
         userId: user._id,
+        username: user.username,
+        email: user.email,
         fullName
       });
     } else {
       return res.status(400).json({ message: 'Invalid role' });
     }
 
+    // 3️⃣ Generate JWT
     const token = signToken({ id: user._id, role: user.role });
 
     return res.status(201).json({
@@ -100,6 +109,7 @@ async function verifyRegisterOtp(req, res) {
       },
       token
     });
+
   } catch (err) {
     return res.status(500).json({
       message: 'Registration failed',
