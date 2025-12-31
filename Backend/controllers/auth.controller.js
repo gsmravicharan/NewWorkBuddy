@@ -48,9 +48,9 @@ async function sendRegisterOtp(req, res) {
 // Verify registration OTP and create user
 async function verifyRegisterOtp(req, res) {
   try {
-    const { username, fullName, email, password, role, otp } = req.body;
+    const { username, fullName, email, phoneNumber, password, role, otp } = req.body;
 
-    if (!username || !fullName || !email || !password || !role || !otp) {
+    if (!username || !fullName || !email || !phoneNumber || !password || !role || !otp) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
@@ -72,26 +72,29 @@ async function verifyRegisterOtp(req, res) {
     });
 
     // 2️⃣ Create ROLE-SPECIFIC document (with email)
-    if (role === 'customer') {
+    if (role === "CUSTOMER") {
       await Customer.create({
         userId: user._id,
         username: user.username,
         email: user.email,
-        fullName
+        fullName,
+        phoneNumber
       });
-    } else if (role === 'worker') {
+    } else if (role === "WORKER") {
       await Worker.create({
         userId: user._id,
         username: user.username,
         email: user.email,
-        fullName
+        fullName,
+        phoneNumber
       });
-    } else if (role === 'handicapper') {
+    } else if (role === "HANDICAPPER") {
       await Handicapper.create({
         userId: user._id,
         username: user.username,
         email: user.email,
-        fullName
+        fullName,
+        phoneNumber
       });
     } else {
       return res.status(400).json({ message: 'Invalid role' });
@@ -125,12 +128,13 @@ async function verifyRegisterOtp(req, res) {
  */
 async function login(req, res) {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ message: 'Email and password required' });
+    const { email, password, role } = req.body;
+    if (!email || !password || !role) return res.status(400).json({ message: 'Email, password, and role required' });
     const user = await userService.findByEmail(email);
     if (!user) return res.status(400).json({ message: 'Invalid credentials' });
     const valid = await user.comparePassword(password);
     if (!valid) return res.status(400).json({ message: 'Invalid credentials' });
+    if (user.role !== role) return res.status(400).json({ message: 'Invalid credentials for this user' });
     const token = signToken({ id: user._id, role: user.role });
     return res.json({ user: { id: user._id, name: user.name, email: user.email, role: user.role }, token });
   } catch (err) {
@@ -149,12 +153,16 @@ function me(req, res) {
 // Forgot password: send OTP if email exists
 async function sendForgotPasswordOtp(req, res) {
   try {
-    const { email } = req.body;
+    const { email, role } = req.body;
     if (!email) return res.status(400).json({ message: 'Email is required' });
     const user = await userService.findByEmail(email);
     if (!user) {
       // Do not reveal whether the email exists
       return res.status(200).json({ message: 'If the email exists, an OTP has been sent' });
+    }
+
+    if (role && user.role !== role) {
+      return res.status(400).json({ message: 'Invalid email address...' });
     }
 
     try {

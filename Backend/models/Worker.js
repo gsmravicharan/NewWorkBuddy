@@ -47,6 +47,18 @@ const workerSchema = new mongoose.Schema(
     location: {
       type: String,
       trim: true
+    },
+    totalRequests: {
+      type: Number,
+      trim: true
+    },
+    ongoingRequests: {
+      type: Number,
+      trim: true
+    },
+    completedRequests: {
+      type: Number,
+      trim: true
     }
   },
   {
