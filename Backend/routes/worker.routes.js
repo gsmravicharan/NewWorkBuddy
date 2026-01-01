@@ -21,4 +21,13 @@ router.put(
   controller.updateAllWorkerFields
 );
 
+// get worker details
+router.get(
+  '/details',
+  authMiddleware,
+  allowRoles([roles.WORKER]),
+  controller.getWorkerDetails
+);
+
+
 module.exports = router;

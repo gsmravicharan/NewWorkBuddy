@@ -90,6 +90,26 @@ async function updateAllWorkerFields(req, res) {
   }
 }
 
+// GET WORKER DETAILS
+async function getWorkerDetails(req, res) {
+  try {
+    const userId = req.user._id;
+
+    const worker = await Worker.findOne({ userId });
+
+    if (!worker) {
+      return res.status(404).json({ message: 'Worker not found' });
+    }
+
+    res.status(200).json({
+      message: 'Worker details fetched successfully',
+      worker
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
 
 
-module.exports = { getDashboard , upsertWorker,updateAllWorkerFields  };
+module.exports = { getDashboard , upsertWorker,updateAllWorkerFields,getWorkerDetails  };

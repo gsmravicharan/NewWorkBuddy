@@ -82,8 +82,32 @@ async function updateAllHandicapperFields(req, res) {
   }
 }
 
+
+// GET HANDICAPPER DETAILS
+async function getHandicapperDetails(req, res) {
+  try {
+    const userId = req.user._id;
+
+    const handicapper = await Handicapper.findOne({ userId });
+
+    if (!handicapper) {
+      return res.status(404).json({ message: 'Handicapper not found' });
+    }
+
+    res.status(200).json({
+      message: 'Handicapper details fetched successfully',
+      handicapper
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+
 module.exports = {
   getDashboard,
   upsertHandicapper,
-  updateAllHandicapperFields
+  updateAllHandicapperFields,
+    getHandicapperDetails
 };

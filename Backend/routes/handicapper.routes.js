@@ -30,4 +30,13 @@ router.put(
   controller.updateAllHandicapperFields
 );
 
+// get handicapper details
+router.get(
+  '/details',
+  authMiddleware,
+  allowRoles([roles.HANDICAPPER]),
+  controller.getHandicapperDetails
+);
+
+
 module.exports = router;
