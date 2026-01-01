@@ -82,8 +82,30 @@ async function updateAllCustomerFields(req, res) {
   }
 }
 
+
+async function getCustomerDetails(req, res) {
+  try {
+    const userId = req.user._id;
+
+    const customer = await Customer.findOne({ userId });
+
+    if (!customer) {
+      return res.status(404).json({ message: 'Customer not found' });
+    }
+
+    res.status(200).json({
+      message: 'Customer details fetched successfully',
+      customer
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
 module.exports = {
   getDashboard,
   upsertCustomer,
-   updateAllCustomerFields
+   updateAllCustomerFields,
+   getCustomerDetails
 };

@@ -28,4 +28,11 @@ router.put(
   controller.updateAllCustomerFields
 );
 
+router.get(
+  '/details',
+  authMiddleware,
+  allowRoles([roles.CUSTOMER]),
+  controller.getCustomerDetails
+);
+
 module.exports = router;
