@@ -7,4 +7,18 @@ const controller = require('../controllers/worker.controller');
 
 router.get('/dashboard', authMiddleware, allowRoles([roles.WORKER]), controller.getDashboard);
 
+router.post(
+  '/profile',
+  authMiddleware,
+  allowRoles([roles.WORKER]),
+  controller.upsertWorker
+);
+
+router.put(
+  '/update-all',
+  authMiddleware,
+  allowRoles([roles.WORKER]),
+  controller.updateAllWorkerFields
+);
+
 module.exports = router;

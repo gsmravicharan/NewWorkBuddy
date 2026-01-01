@@ -17,7 +17,7 @@ Content-Type: application/json
 {
   "username": "Ravi charan",
   "fullname":"Ganisetti Sai Muthya Ravi Charan",
-  "email": "gsmravicharan@gmail.com",
+  "email": "durganagasaireddypenapa@gmail.com",
   "password": "Pass@1234",
   "role": "customer"
 }
@@ -56,11 +56,11 @@ Content-Type: application/json
 
 {
   "username": "Ravi charan",
-  "fullName": "Ganisetti Sai Muthya Ravi Charan",
-  "email": "gsmravicharan@gmail.com",
+  "fullname":"Ganisetti Sai Muthya Ravi Charan",
+  "email": "durganagasaireddypenapa@gmail.com",
   "password": "Pass@1234",
   "role": "customer",
-  "otp": "153217"
+  "otp": "653658"
 }
 
 ### Verify registration OTP and complete registration (Worker)
@@ -210,3 +210,13 @@ GET http://localhost:5000/api/customers/dashboard
 # - If you re-run send-OTP too quickly you may hit basic rate limits.
 ###########################################################################
 
+POST /api/customer/profile
+Authorization: Bearer <token>
+
+{
+  "username": "Reddy",
+  "email": "Reddy@gmail.com",
+  "phoneNumber": "9999999999",
+  "gender": "Male",
+  "address": "Hyderabad"
+}
